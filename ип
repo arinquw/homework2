@@ -1,0 +1,15 @@
+'''
+1.  если я полностью удалю или закомментирую строку 34
+то когда дойдёт до цикла
+for i in range(numberOfHeadlines):
+выскочит ошибка
+NameError: name ‘numberOfHeadlines’ is not defined
+потому что переменной вообще нет
+2.  если в этой же строке вместо int(response) оставить просто response, то numberOfHeadlines
+ будет строкой типа “5”. а range() хочет именно число, поэтому сразу ошибка
+TypeError: ‘str’ object cannot be interpreted as an integer
+проге нужно число, а я даю слово
+3.  если строку 19 заменить на WHEN = [] (пустой список), то потом в random.choice(WHEN) будет
+IndexError: Cannot choose from an empty sequence
+потому что выбирать не из чего, список пустой и всё ломается.
+'''
