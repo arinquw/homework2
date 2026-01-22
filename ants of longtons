@@ -1,0 +1,135 @@
+import sys
+import random
+import time
+import bext
+
+name = 'name'
+
+# размер экрана
+width, height = bext.size()
+width = width - 1
+height = height - 1
+
+# направления
+north = 'north'
+south = 'south'
+east = 'east'
+west = 'west'
+directions = [north, east, south, west]
+
+ant_up = '^'
+ant_down = 'v'
+ant_right = '>'
+ant_left = '<'
+
+black = 'black'
+white = 'white'
+colors = ['red', 'green', 'blue', 'yellow']
+
+num_ants = 5  # количество муравейчиков
+pause = 0.3  # 
+
+
+def main():
+    bext.bg(black)
+    bext.clear()
+
+    ants = []
+    for i in range(num_ants):
+        ant = {
+            'x': random.randint(0, width),
+            'y': random.randint(0, height),
+            'dir': random.choice(directions),
+            'color': random.choice(colors)
+        }
+        ants.append(ant)
+
+    board = {}  # доска для цветов
+    changed = set()  # чо изменилось
+
+    while True:
+        for ant in ants:
+            pos = (ant['x'], ant['y'])
+
+            if pos not in board:
+                board[pos] = black
+
+            if board[pos] == ant['color']:
+                board[pos] = black
+                changed.add(pos)
+                ant['dir'] = turn_right(ant['dir'])
+            else:
+                board[pos] = ant['color']
+                changed.add(pos)
+                ant['dir'] = turn_left(ant['dir'])
+
+            move_ant(ant)
+
+        show_board(board, changed, ants)
+        changed.clear()
+        time.sleep(pause)
+
+
+def turn_right(dir):
+    idx = directions.index(dir)
+    new_idx = (idx + 1) % 4
+    return directions[new_idx]
+
+
+def turn_left(dir):
+    idx = directions.index(dir)
+    new_idx = (idx - 1) % 4
+    return directions[new_idx]
+
+
+def move_ant(ant):
+    if ant['dir'] == north:
+        ant['y'] = ant['y'] - 1
+    elif ant['dir'] == south:
+        ant['y'] = ant['y'] + 1
+    elif ant['dir'] == east:
+        ant['x'] = ant['x'] + 1
+    elif ant['dir'] == west:
+        ant['x'] = ant['x'] - 1
+
+    if ant['x'] < 0:
+        ant['x'] = width
+    if ant['x'] > width:
+        ant['x'] = 0
+    if ant['y'] < 0:
+        ant['y'] = height
+    if ant['y'] > height:
+        ant['y'] = 0
+
+
+def show_board(board, changed, ants):
+    for pos in changed:
+        x, y = pos
+        bext.goto(x, y)
+        color = board.get(pos, black)
+        bext.bg(color)
+        print(' ', end='')
+
+    for ant in ants:
+        bext.goto(ant['x'], ant['y'])
+        color = board.get((ant['x'], ant['y']), black)
+        bext.bg(color)
+        bext.fg(white)
+        if ant['dir'] == north:
+            print(ant_up, end='')
+        elif ant['dir'] == south:
+            print(ant_down, end='')
+        elif ant['dir'] == east:
+            print(ant_right, end='')
+        elif ant['dir'] == west:
+            print(ant_left, end='')
+
+    bext.goto(0, 0)
+    sys.stdout.flush()
+
+
+if name == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit()
