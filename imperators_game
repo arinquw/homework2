@@ -1,0 +1,131 @@
+import random
+
+PATH_LENGTH = 14
+ROSETTES = [3, 7, 13]
+SAFE_ROSETTE = 7
+
+pieces = {'X': [-1] * 7, 'O': [-1] * 7}
+scores = {'X': 0, 'O': 0}
+turn = 'X'
+
+
+def throw_dice():
+    return sum(random.randint(0, 1) for _ in range(4))
+
+
+def get_legal_moves(player, roll):
+    if roll == 0:
+        return []
+
+    my = pieces[player]
+    opp = pieces['O' if player == 'X' else 'X']
+    moves = []
+
+    for i in range(7):
+        pos = my[i]
+        new = pos + roll
+
+        if pos >= PATH_LENGTH:
+            continue
+        if new > PATH_LENGTH:
+            continue
+        if new != PATH_LENGTH and new in my:
+            continue
+        if 4 <= new <= 11 and new in opp and new == SAFE_ROSETTE:
+            continue
+
+        moves.append(i)
+
+    return moves
+
+
+def move_piece(player, piece_num, roll):
+    my = pieces[player]
+    opp_player = 'O' if player == 'X' else 'X'
+    opp = pieces[opp_player]
+
+    pos = my[piece_num]
+    new = pos + roll
+
+    print(f"Игрок {player} "
+          f"{'выводит фишку из дома' if pos == -1 else f'двигает фишку с {pos}'} на {new}.")
+
+    if 4 <= new <= 11 and new in opp:
+        idx = opp.index(new)
+        opp[idx] = -1
+        print(f"Фишка {opp_player} срублена домой.")
+
+    my[piece_num] = new
+
+    if new == PATH_LENGTH:
+        scores[player] += 1
+        print(f"Фишка {player} на финише!")
+
+    if new in ROSETTES and new != PATH_LENGTH:
+        print("РОЗЕТКА! Ещё ход!")
+        return True
+
+    return False
+
+
+def print_board():
+    print("\n==========")
+    for p in 'XO':
+        print(f"{p} дом: {pieces[p].count(-1)} | финиш: {scores[p]}")
+    print("----------")
+    print("Позиции X:", pieces['X'])
+    print("Позиции O:", pieces['O'])
+    print("Розетки: 3, 7, 13")
+    print("==========\n")
+
+
+def play_game():
+    global turn
+
+    print("ИГРА УРА\nЦель: 7 фишек на финиш.")
+
+    while scores['X'] < 7 and scores['O'] < 7:
+        print_board()
+        print(f"Ход {turn}")
+
+        input("Enter для кубиков...")
+        roll = throw_dice()
+        print(f"Выпало {roll}")
+
+        moves = get_legal_moves(turn, roll)
+
+        if not moves:
+            print("Нет хода. Пропуск.")
+            turn = 'O' if turn == 'X' else 'X'
+            continue
+
+        if len(moves) == 1:
+            choice = moves[0]
+            print("Авто ход.")
+        else:
+            print("Фишки для хода:")
+            my = pieces[turn]
+            for i in moves:
+                pos = my[i]
+                print(f"{i + 1}: {'дом' if pos == -1 else pos}")
+
+            while True:
+                try:
+                    num = int(input("Номер фишки: ")) - 1
+                    if num in moves:
+                        choice = num
+                        break
+                    print("Ошибка.")
+                except ValueError:
+                    print("Введите число!")
+
+        if not move_piece(turn, choice, roll):
+            turn = 'O' if turn == 'X' else 'X'
+
+    print_board()
+    win = 'X' if scores['X'] == 7 else 'O'
+    print(f"ПОБЕДА {win}!")
+
+
+if __name__ == "__main__":
+    play_game()
