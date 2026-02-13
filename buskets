@@ -1,0 +1,81 @@
+def show_buckets(b8, b5, b3):
+    print()
+    print(f"8L: {b8} л")
+    print(f"5L: {b5} л")
+    print(f"3L: {b3} л")
+    print()
+
+
+def main():
+    b8, b5, b3 = 0, 0, 0  # текущее количество воды в каждом ведре
+    capacities = {"8": 8, "5": 5, "3": 3}
+
+    print("Try to get 4L of water into one of these buckets.")
+    show_buckets(b8, b5, b3)
+
+    while True:
+        # проверка победы
+        if b8 == 4 or b5 == 4 or b3 == 4:
+            print("★ Congratulations! You have 4L of water in one of the buckets. ★")
+            break
+
+        print("You can:")
+        print(" (F)ill the bucket")
+        print(" (E)mpty the bucket")
+        print(" (P)our one bucket into another")
+        print(" (Q)uit")
+
+        action = input("> ").strip().lower()
+
+        if action == "q":
+            print("Thanks for playing!")
+            break
+
+        elif action == "f":
+            bucket = input("Select a bucket 8, 5, 3: ").strip()
+            if bucket == "8":
+                b8 = 8
+            elif bucket == "5":
+                b5 = 5
+            elif bucket == "3":
+                b3 = 3
+            else:
+                print("Invalid bucket!")
+
+        elif action == "e":
+            bucket = input("Select a bucket 8, 5, 3: ").strip()
+            if bucket == "8":
+                b8 = 0
+            elif bucket == "5":
+                b5 = 0
+            elif bucket == "3":
+                b3 = 0
+            else:
+                print("Invalid bucket!")
+
+        elif action == "p":
+            source = input("Pour from bucket (8, 5, 3): ").strip()
+            dest = input("Into bucket (8, 5, 3): ").strip()
+
+            levels = {"8": b8, "5": b5, "3": b3}
+
+            if source not in levels or dest not in levels or source == dest:
+                print("Invalid selection!")
+            else:
+                # сколько можно перелить
+                free_space = capacities[dest] - levels[dest]
+                amount = min(levels[source], free_space)
+
+                levels[source] -= amount
+                levels[dest] += amount
+
+                b8, b5, b3 = levels["8"], levels["5"], levels["3"]
+
+        else:
+            print("Invalid action!")
+
+        show_buckets(b8, b5, b3)
+
+
+if __name__ == "__main__":
+    main()
